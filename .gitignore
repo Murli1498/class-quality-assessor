@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+.cache/
+.env
+.streamlit/secrets.toml
+# confidential recordings must never be committed
+recordings/
+data/
+*.mp4
+*.mov
+*.mkv
+*.webm
+*.wav
+*.mp3
+*.m4a

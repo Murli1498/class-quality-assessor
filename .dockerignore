@@ -1,0 +1,6 @@
+.venv
+.cache
+recordings
+.env
+.git
+__pycache__
