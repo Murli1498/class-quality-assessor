@@ -15,8 +15,12 @@ def _model(size: str):
 
 def transcribe(wav_path: str, model_size: str = "base", duration: Optional[float] = None,
                progress: Optional[Callable[[float], None]] = None) -> Dict:
+    # Pass samples, not a path. faster-whisper 1.2.1 opens files with av.open(metadata_errors=...),
+    # which PyAV 19 removed, so a file path crashes on Streamlit Cloud.
+    from .audio import _load
+
     model = _model(model_size)
-    segs, info = model.transcribe(wav_path, vad_filter=True, beam_size=1, language=None,
+    segs, info = model.transcribe(_load(wav_path), vad_filter=True, beam_size=1, language=None,
                                   condition_on_previous_text=False)
     out: List[Dict] = []
     for s in segs:
