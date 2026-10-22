@@ -4,8 +4,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
-# pre-download the default Whisper model so the first request isn't slow
+# Keep the model inside the image. HF_HOME=/tmp would be empty on every restart.
+ENV HF_HOME=/app/.cache PORT=7860
 RUN python -c "from faster_whisper import WhisperModel; WhisperModel('base', device='cpu', compute_type='int8')"
-ENV PORT=7860 HF_HOME=/tmp/hf
 EXPOSE 7860
 CMD ["sh", "-c", "streamlit run app.py --server.port=${PORT} --server.address=0.0.0.0"]

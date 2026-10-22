@@ -9,7 +9,6 @@ from __future__ import annotations
 import subprocess
 from typing import Dict, List, Optional, Tuple
 
-import cv2
 import numpy as np
 
 from .media import ffmpeg_exe
@@ -19,6 +18,7 @@ W, H = 640, 360
 
 def analyze_video(path: str, every_s: float = 2.0, max_seconds: Optional[float] = None,
                   n_keyframes: int = 8) -> Tuple[Dict, List[Tuple[float, bytes]]]:
+    import cv2  # local import: a missing system library then fails this step, not app startup
     cmd = [ffmpeg_exe(), "-v", "error", "-i", path, "-an", "-vf", f"fps=1/{every_s},scale={W}:{H}",
            "-f", "rawvideo", "-pix_fmt", "bgr24"]
     if max_seconds:

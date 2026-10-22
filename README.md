@@ -1,3 +1,13 @@
+---
+title: 8x8 Class Quality Assessor
+emoji: 🎓
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # 8x8 Class Quality Assessor
 
 Upload (or link) an online class recording → get **Poor / Average / Good / Excellent** plus timestamped,

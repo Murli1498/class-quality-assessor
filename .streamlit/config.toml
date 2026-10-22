@@ -3,3 +3,7 @@ maxUploadSize = 2000
 
 [browser]
 gatherUsageStats = false
+
+[client]
+# Community Cloud otherwise replaces the real exception with a redacted message.
+showErrorDetails = "full"
