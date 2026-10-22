@@ -109,7 +109,8 @@ def build_context(sig: Dict) -> str:
         "Silences of 8s+ at: " + (spans or "none"),
         "VIDEO SIGNALS: " + json.dumps(v),
         "TRANSCRIPT STATS: " + json.dumps(sig["transcript_stats"]),
-        "TRANSCRIPT (machine-generated, timestamps = segment start):\n" + tr.render_transcript(sig["segments"]),
+        "TRANSCRIPT (machine-generated, timestamps = segment start):\n"
+        + tr.render_transcript(sig["segments"], int(os.getenv("LLM_MAX_TRANSCRIPT_CHARS", "45000"))),
     ]
     return "\n\n".join(parts)
 

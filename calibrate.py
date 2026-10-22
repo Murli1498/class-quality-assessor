@@ -110,7 +110,8 @@ def main():
             continue
         per_dim = defaultdict(list)
         for i in range(args.runs):
-            jc = f"{cache}.{llm.model_name()}.judge{i}{'f' if args.frames else ''}.json"   # judge outputs cached: re-runs are free
+            model_tag = llm.model_name().replace("/", "_")
+            jc = f"{cache}.{model_tag}.judge{i}{'f' if args.frames else ''}.json"   # judge outputs cached: re-runs are free
             if os.path.exists(jc):
                 assessment = json.load(open(jc))
             else:

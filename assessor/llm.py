@@ -34,6 +34,29 @@ def model_name() -> str:
     return _cfg()[2]
 
 
+_last_request = 0.0
+
+
+def _log_err(model: str, err: BaseException) -> None:
+    try:
+        path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".cache", "llm_errors.log")
+        with open(path, "a") as f:
+            f.write(model + ": " + str(err)[:400].replace("\n", " ") + "\n")
+    except Exception:
+        pass
+
+
+def _pace() -> None:
+    """Space calls out so a small per-minute token cap (Groq free tier is ~8k) is not blown by back-to-back classes."""
+    global _last_request
+    gap = float(os.getenv("LLM_MIN_INTERVAL_S", "0") or 0)
+    if gap > 0:
+        wait = _last_request + gap - time.time()
+        if wait > 0:
+            time.sleep(wait)
+    _last_request = time.time()
+
+
 def _extract_json(txt: str) -> Dict:
     txt = txt.strip()
     txt = re.sub(r"^```(?:json)?|```$", "", txt, flags=re.M).strip()
@@ -119,8 +142,11 @@ def judge(context_text: str, keyframes: Optional[List[Tuple[float, bytes]]] = No
     last_err = None
     for m in models:
         for attempt in range(2):
-            kwargs = dict(model=m, temperature=0.2,
+            kwargs = dict(model=m, temperature=0.2, max_tokens=4096,
                           messages=[{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": content}])
+            if base and "groq.com" in base and "gpt-oss" in m:
+                kwargs["reasoning_effort"] = os.getenv("LLM_REASONING_EFFORT", "low")
+            _pace()
             try:
                 try:
                     r = _with_deadline(lambda: client.chat.completions.create(
@@ -145,4 +171,6 @@ def judge(context_text: str, keyframes: Optional[List[Tuple[float, bytes]]] = No
                 time.sleep(8 * (attempt + 1))
             except Exception as e:                          # unparseable JSON: one more try
                 last_err = e
+                _log_err(m, e)
+    _log_err(model, last_err)
     raise RuntimeError(f"LLM assessment failed on all models: {str(last_err)[:300]}")
